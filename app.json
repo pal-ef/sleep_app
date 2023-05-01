@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "sleep_app",
-    "slug": "sleep_app",
+    "slug": "dreamwell",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -15,16 +15,24 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.palef.dreamwell"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.palef.dreamwell"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "8fe55712-7752-4a9f-8473-fc3c1d163fb0"
+      }
+    },
+    "owner": "pal-ef"
   }
 }
