@@ -64,6 +64,17 @@ const Home = () => {
     );
 };
 
+// 3 ciclos con datos aleatorios
+// Simular 1 min
+// 60-80 BPM == despierto
+// 40-60 BPM == sueño ligero
+// 30-40 BPM == sueño profundo
+// 10-20 BPM == casi muerto
+
+// Ciclos = horas_dormidas / 90 minutos
+
+// Simular la entrada de datos en tiempo real
+
 const HomeScreen = () => {
     return (
         <SafeAreaView>
@@ -87,7 +98,8 @@ const HomeScreen = () => {
                     </View>
                     <View style={theme.dataBox}>
                         <Text style={{ fontSize: 60, textAlign: "center" }}>
-                            {Math.round(getRandomInt(0, 8))}.{Math.round(getRandomInt(1, 9))}
+                            {Math.round(getRandomInt(0, 8))}.
+                            {Math.round(getRandomInt(1, 9))}
                         </Text>
                         <Text>Horas de sueño</Text>
                     </View>
@@ -105,6 +117,7 @@ const HomeScreen = () => {
                     </View>
                 </View>
             </View>
+            <Text style={theme.textTitle}>¿Qué significa esto?</Text>
         </SafeAreaView>
     );
 };
@@ -164,11 +177,9 @@ const theme = StyleSheet.create({
         flexDirection: "row",
         flexWrap: "wrap",
         rowGap: 45,
-        gap: 60
+        gap: 60,
     },
-    dataBox: {
-
-    }
+    dataBox: {},
 });
 
 export default Home;

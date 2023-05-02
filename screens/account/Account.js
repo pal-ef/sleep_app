@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     View,
     Text,
@@ -8,11 +8,29 @@ import {
     Alert,
     TextInput,
 } from "react-native"; // Agregamos TextInput de react-native
-import Icon from "react-native-vector-icons/FontAwesome";
+import { Feather } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { ScrollView } from "react-native-gesture-handler";
 
 const Account = () => {
+    const [waifuURL, setWaifuURL] = useState("");
+    // Fetcher
+    const fetchWaifu = async () => {
+        setWaifuURL(
+            "https://mir-s3-cdn-cf.behance.net/project_modules/disp/585d0331234507.564a1d239ac5e.gif"
+        );
+        const response = await fetch("https://api.waifu.im/search/");
+        const jsonData = await response.json();
+        setTimeout(() => {
+            setWaifuURL(jsonData.images[0].url);
+        }, 1500);
+        //console.log(jsonData.images[0].url);
+    };
+
+    useEffect(() => {
+        fetchWaifu();
+    }, []);
+
     const [selectedImage, setSelectedImage] = useState(null);
     let openImagePickerAsync = async () => {
         const permissionResult =
@@ -36,31 +54,28 @@ const Account = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [isEmpty, setIsEmpty] = useState(false);
     const [userInfo, setUserInfo] = useState({
-        username: "Usuario Ejemplo",
-        firstName: "Nombre Ejemplo",
-        lastName: "Apellido Ejemplo",
+        username: "derek_williams",
+        fullName: "William Shakespere",
         email: "correo@ejemplo.com",
-        phoneNumber: "1234567890",
+        phoneNumber: "+81 197515773",
     });
 
     // Funciones para manejar el botón de editar
-    const handleEditPress = () => {
-        setIsEditing(true);
-    };
-
-    // Función para manejar el botón de guardar
-    const handleSavePress = () => {
-        const hasEmptyField = Object.values(userInfo).some(
-            (value) => value === ""
-        );
-        if (hasEmptyField) {
-            setIsEmpty(true);
-            Alert.alert("¡Verifique la información!");
-            return;
-        } else {
-            setIsEmpty(false);
-            setIsEditing(false);
-            Alert.alert("Datos guardados exitosamente");
+    const handleEditButton = () => {
+        setIsEditing(!isEditing);
+        if (isEditing) {
+            const hasEmptyField = Object.values(userInfo).some(
+                (value) => value === ""
+            );
+            if (hasEmptyField) {
+                setIsEmpty(true);
+                Alert.alert("Por favor, revisa que ningún campo este vacío");
+                return;
+            } else {
+                setIsEmpty(false);
+                setIsEditing(false);
+                //Alert.alert("Datos guardados exitosamente");
+            }
         }
     };
 
@@ -84,127 +99,93 @@ const Account = () => {
                         />
                     ) : (
                         <View style={styles.profileContainer}>
-                            <Icon name="user" size={80} color="#4C8494" />
+                            <Image
+                                source={{ uri: waifuURL }}
+                                resizeMode="contain"
+                                style={styles.image}
+                            />
                         </View>
                     )}
                 </TouchableOpacity>
-
-                {isEditing ? (
-                    // Mostrar TextInput para editar el nombre de usuario cuando se está editando
-                    <TextInput
-                        style={[
-                            styles.input,
-                            userInfo.username === "" &&
-                                isEmpty &&
-                                styles.inputError,
-                        ]}
-                        value={userInfo.username}
-                        onChangeText={(value) =>
-                            handleChangeText("username", value)
-                        }
-                        placeholder="Nombre de usuario"
-                    />
-                ) : (
-                    <Text style={styles.usernameText}>{userInfo.username}</Text>
-                )}
+                <TextInput
+                    style={[
+                        styles.usernameText,
+                        isEditing ? styles.editingMode : null
+                    ]}
+                    editable={isEditing ? true : false}
+                    value={userInfo.username}
+                    onChangeText={(value) =>
+                        handleChangeText("username", value)
+                    }
+                    placeholder="Nombre de usuario"
+                />
             </View>
             <View style={styles.userInfoContainer}>
                 <View>
-                    <Text style={styles.infoLabel}>Nombre</Text>
-                    {isEditing ? (
-                        // Mostrar TextInput para editar el nombre cuando se está editando
+                    <View style={styles.inputContainer}>
+                        <View style={styles.inputIcon}>
+                            <Feather name="at-sign" size={20} color="white" />
+                        </View>
                         <TextInput
-                            style={[
-                                styles.input,
-                                userInfo.firstName === "" &&
-                                    isEmpty &&
-                                    styles.inputError,
-                            ]}
-                            value={userInfo.firstName}
+                            editable={isEditing ? true : false}
+                            style={[styles.input, isEditing ? styles.editingMode : null]}
+                            value={userInfo.email}
                             onChangeText={(value) =>
-                                handleChangeText("firstName", value)
+                                handleChangeText("email", value)
                             }
                         />
-                    ) : (
-                        <Text style={styles.infoText}>
-                            {userInfo.firstName}
-                        </Text>
-                    )}
-                    <Text style={styles.infoLabel}>Apellido</Text>
-                    {isEditing ? (
-                        // Mostrar TextInput para editar el apellido cuando se está editando
+                    </View>
+                    <View style={styles.inputContainer}>
+                        <View style={styles.inputIcon}>
+                            <Feather name="user" size={20} color="white" />
+                        </View>
                         <TextInput
-                            style={[
-                                styles.input,
-                                userInfo.lastName === "" &&
-                                    isEmpty &&
-                                    styles.inputError,
-                            ]}
-                            value={userInfo.lastName}
+                            editable={isEditing ? true : false}
+                            style={[styles.input, isEditing ? styles.editingMode : null]}
+                            value={userInfo.fullName}
                             onChangeText={(value) =>
-                                handleChangeText("lastName", value)
+                                handleChangeText("fullName", value)
                             }
                         />
-                    ) : (
-                        <Text style={styles.infoText}>{userInfo.lastName}</Text>
-                    )}
-                    <Text style={styles.infoLabel}>Correo</Text>
-                    <Text style={styles.infoText}>{userInfo.email}</Text>
-                    <Text style={styles.infoLabel}>Número de Teléfono</Text>
-                    {isEditing ? (
-                        // Mostrar TextInput para editar el número de teléfono cuando se está editando
+                    </View>
+                    <View style={styles.inputContainer}>
+                        <View style={styles.inputIcon}>
+                            <Feather name="phone" size={20} color="white" />
+                        </View>
                         <TextInput
-                            style={[
-                                styles.input,
-                                userInfo.phoneNumber === "" &&
-                                    isEmpty &&
-                                    styles.inputError,
-                            ]}
+                            editable={isEditing ? true : false}
+                            style={[styles.input, isEditing ? styles.editingMode : null]}
                             value={userInfo.phoneNumber}
                             onChangeText={(value) =>
                                 handleChangeText("phoneNumber", value)
                             }
-                            keyboardType="phone-pad"
                         />
-                    ) : (
-                        <Text style={styles.infoText}>
-                            {userInfo.phoneNumber}
-                        </Text>
-                    )}
+                    </View>
                 </View>
             </View>
             <View style={{ alignItems: "center" }}>
-                {isEditing ? (
-                    <TouchableOpacity
-                        style={[styles.editInfoPressable, {backgroundColor: "#04A18F", borderWidth: 0}]}
-                        onPress={handleSavePress}
+                <TouchableOpacity
+                    style={[styles.editInfoPressable, isEditing ? {backgroundColor: "#35B48E", borderColor: "#35B48E"}: null]}
+                    onPress={handleEditButton}
+                >
+                    <Text
+                        style={
+                            isEditing
+                                ? {
+                                      color: "white",
+                                      fontSize: 17,
+                                      fontWeight: "600",
+                                  }
+                                : {
+                                      color: "#1C93D6",
+                                      fontSize: 17,
+                                      fontWeight: "600",
+                                  }
+                        }
                     >
-                        <Text
-                            style={{
-                                color: "white",
-                                fontSize: 17,
-                                fontWeight: "600",
-                            }}
-                        >
-                            Guardar cambios
-                        </Text>
-                    </TouchableOpacity>
-                ) : (
-                    <TouchableOpacity
-                        style={styles.editInfoPressable}
-                        onPress={handleEditPress}
-                    >
-                        <Text
-                            style={{
-                                color: "#1C93D6",
-                                fontSize: 17,
-                                fontWeight: "600",
-                            }}
-                        >
-                            Cambiar información
-                        </Text>
-                    </TouchableOpacity>
-                )}
+                        {isEditing ? "Guardar cambios" : "Cambiar información"}
+                    </Text>
+                </TouchableOpacity>
             </View>
         </ScrollView>
     );
@@ -227,28 +208,33 @@ const styles = StyleSheet.create({
     },
     profileContainer: {
         alignItems: "center",
-        marginVertical: 16,
+        marginVertical: 8,
         justifyContent: "center",
     },
     image: {
-        width: 150,
-        height: 150,
-        borderRadius: 75,
-        marginBottom: 16,
-        borderWidth: 2,
-        borderColor: "black",
+        width: 200,
+        height: 200,
+        borderRadius: 100,
+        marginBottom: 8,
+        borderWidth: 1.3,
+        borderColor:"#0C859F"
     },
     usernameText: {
+        width: "auto",
         fontSize: 20,
+        fontWeight: "400",
         marginBottom: 8,
+        paddingHorizontal: 15,
+        paddingVertical: 3,
         textAlign: "center",
+        borderRadius: 6,
     },
     userInfoContainer: {
         flex: 1,
         justifyContent: "center",
         marginTop: 30,
         marginHorizontal: 50,
-        marginBottom: 60,
+        marginBottom: 30,
     },
     infoContainer: {
         marginBottom: 16,
@@ -261,19 +247,38 @@ const styles = StyleSheet.create({
     infoText: {
         fontSize: 18,
         marginBottom: 18,
-        
+    },
+    inputContainer: {
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 10,
     },
     input: {
         fontSize: 16,
-        borderWidth: 1,
-        borderColor: "#ccc",
-        borderRadius: 4,
-        padding: 8,
-        marginBottom: 8,
+        backgroundColor: "#E1E9EB",
+        padding: 6.5,
+        paddingLeft: 12,
+        width: "85%",
+        borderTopRightRadius: 6,
+        borderBottomRightRadius: 6,
+        color: "#3A3A3A",
     },
     inputError: {
         borderColor: "red",
     },
+    inputIcon: {
+        backgroundColor: "#0C859F",
+        paddingHorizontal: 10,
+        paddingVertical: 10,
+        borderTopLeftRadius: 6,
+        borderBottomLeftRadius: 6,
+    },
+    editingMode: {
+        borderWidth: 1,
+        borderColor: "#0C859F",
+        paddingVertical: 5.5
+    }
 });
 
 export default Account;
