@@ -1,5 +1,5 @@
-import React from "react";
-import { Text, StyleSheet, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Text, StyleSheet, View, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -64,18 +64,43 @@ const Home = () => {
     );
 };
 
-// 3 ciclos con datos aleatorios
-// Simular 1 min
-// 60-80 BPM == despierto
-// 40-60 BPM == sueño ligero
-// 30-40 BPM == sueño profundo
-// 10-20 BPM == casi muerto
+// Simulated data
 
-// Ciclos = horas_dormidas / 90 minutos
-
-// Simular la entrada de datos en tiempo real
+//const [usedData, setUsedData] = useState([]);
+/*
+//          0        1         2
+sleepdata = [[good], [bad], [regular]]
+useEffect(() => {
+    // uso de datos
+    setTimeout(() => {
+        indice++;
+        setUsedData(sleepdata[indice]);
+        if(indice > sleepdata.length) indice = 0;
+    }, 30000);
+}, []);
+*/
 
 const HomeScreen = () => {
+    // States for alarm
+    const [hour, setHour] = useState(9);
+
+    const handleHourUp = () => {
+        let newHour = hour + 1;
+        if (newHour > 12) {
+            setHour(1);
+        } else {
+            setHour(newHour);
+        }
+    };
+
+    const handleHourDown = () => {
+        let newHour = hour - 1;
+        if (newHour < 1) {
+            setHour(12);
+        } else {
+            setHour(newHour);
+        }
+    };
     return (
         <SafeAreaView>
             <Text style={theme.textTitle}>Información de la última noche</Text>
@@ -117,7 +142,38 @@ const HomeScreen = () => {
                     </View>
                 </View>
             </View>
-            <Text style={theme.textTitle}>¿Qué significa esto?</Text>
+            <Text style={theme.textTitle}>Me gustaría despertar...</Text>
+            <View style={theme.setAlarm}>
+                {/* Arrows */}
+                <View style={theme.setAlarmArrows}>
+                    <TouchableOpacity onPress={handleHourUp}>
+                        <Ionicons
+                            style={{ marginTop: 7, marginBottom: -15 }}
+                            name="chevron-up-outline"
+                            size={36}
+                            color="black"
+                        />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={handleHourDown}>
+                        <Ionicons
+                            name="chevron-down-outline"
+                            size={36}
+                            color="black"
+                        />
+                    </TouchableOpacity>
+                </View>
+                {/* Big number */}
+                <View style={theme.setAlarmNumber}>
+                    <Text style={{ fontSize: 80, fontWeight: "500" }}>
+                        {hour}
+                    </Text>
+                </View>
+                {/* Meridiem */}
+                <View style={theme.setAlarmNumber}>
+                    <Text style={{ fontSize: 20, fontWeight: "700" }}>AM</Text>
+                    <Text style={{ fontSize: 20, fontWeight: "700" }}>PM</Text>
+                </View>
+            </View>
         </SafeAreaView>
     );
 };
@@ -180,6 +236,13 @@ const theme = StyleSheet.create({
         gap: 60,
     },
     dataBox: {},
+    setAlarm: {
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 10,
+    },
 });
 
 export default Home;
