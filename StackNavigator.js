@@ -13,7 +13,7 @@ const StackNavigator = () => {
     <Stack.Navigator>
       <Stack.Group
         screenOptions={{ headerShown: false }}
-      >
+        >
         <Stack.Screen name="LogIn" component={LogIn} />
         <Stack.Screen name="Home" component={Home} />
       </Stack.Group>
