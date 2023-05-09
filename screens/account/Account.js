@@ -12,8 +12,11 @@ import { Feather } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { ScrollView } from "react-native-gesture-handler";
 
-const Account = () => {
-    const [waifuURL, setWaifuURL] = useState("");
+const Account = (props) => {
+    const [waifuURL, setWaifuURL] = useState("google.com");
+    const [dominantColor, setDominantColor] = useState("gray");
+    //const [userData, setUserData] = useState("");
+    const [userInfo, setUserInfo] = useState(props.credentials);
     // Fetcher
     const fetchWaifu = async () => {
         setWaifuURL(
@@ -21,17 +24,30 @@ const Account = () => {
         );
         const response = await fetch("https://api.waifu.im/search/");
         const jsonData = await response.json();
+        setDominantColor(jsonData.images[0].dominant_color);
         setTimeout(() => {
             setWaifuURL(jsonData.images[0].url);
-        }, 1500);
+        }, 300);
         //console.log(jsonData.images[0].url);
     };
 
+    // Not necessary anymore
+    /*
+    const fetchUserData = async() => {
+        const response = await fetch('https://sleepapp-backend-production.up.railway.app/user/1');
+        const jsonData = await response.json();
+        setUserInfo(jsonData);
+    }
+    */
+
+
     useEffect(() => {
         fetchWaifu();
+        //fetchUserData();
     }, []);
 
     const [selectedImage, setSelectedImage] = useState(null);
+    
     let openImagePickerAsync = async () => {
         const permissionResult =
             await ImagePicker.requestCameraPermissionsAsync();
@@ -53,12 +69,26 @@ const Account = () => {
 
     const [isEditing, setIsEditing] = useState(false);
     const [isEmpty, setIsEmpty] = useState(false);
-    const [userInfo, setUserInfo] = useState({
-        username: "derek_williams",
-        fullName: "William Shakespere",
-        email: "correo@ejemplo.com",
-        phoneNumber: "+81 197515773",
-    });
+    
+
+    async function updateUserInfo(data) {
+        console.log(data);
+        // Default options are marked with *
+        const response = await fetch(`https://sleepapp-backend-production.up.railway.app/user/${props.credentials.id}`, {
+          method: "PUT", // *GET, POST, PUT, DELETE, etc.
+          mode: "cors", // no-cors, *cors, same-origin
+          cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+          credentials: "same-origin", // include, *same-origin, omit
+          headers: {
+            "Content-Type": "application/json",
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          redirect: "follow", // manual, *follow, error
+          referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+          body: JSON.stringify(data), // body data type must match "Content-Type" header
+        });
+        return response.json(); // parses JSON response into native JavaScript objects
+      }
 
     // Funciones para manejar el botón de editar
     const handleEditButton = () => {
@@ -75,6 +105,9 @@ const Account = () => {
                 setIsEmpty(false);
                 setIsEditing(false);
                 //Alert.alert("Datos guardados exitosamente");
+                //Alert.alert("Datos guardados exitosamente");
+                // Guardar datos
+                const response = updateUserInfo(userInfo);
             }
         }
     };
@@ -102,7 +135,7 @@ const Account = () => {
                             <Image
                                 source={{ uri: waifuURL }}
                                 resizeMode="contain"
-                                style={styles.image}
+                                style={[styles.image, {borderColor: dominantColor}]}
                             />
                         </View>
                     )}
@@ -113,7 +146,7 @@ const Account = () => {
                         isEditing ? styles.editingMode : null
                     ]}
                     editable={isEditing ? true : false}
-                    value={userInfo.username}
+                    value={'@'+userInfo.username}
                     onChangeText={(value) =>
                         handleChangeText("username", value)
                     }
@@ -142,9 +175,10 @@ const Account = () => {
                         <TextInput
                             editable={isEditing ? true : false}
                             style={[styles.input, isEditing ? styles.editingMode : null]}
-                            value={userInfo.fullName}
+                            value={userInfo.name}
+                            
                             onChangeText={(value) =>
-                                handleChangeText("fullName", value)
+                                handleChangeText("name", value)
                             }
                         />
                     </View>
@@ -155,9 +189,10 @@ const Account = () => {
                         <TextInput
                             editable={isEditing ? true : false}
                             style={[styles.input, isEditing ? styles.editingMode : null]}
-                            value={userInfo.phoneNumber}
+                            value={JSON.stringify(userInfo.phone)}
+                            keyboardType={"numeric"}
                             onChangeText={(value) =>
-                                handleChangeText("phoneNumber", value)
+                                handleChangeText("phone", parseInt(value))
                             }
                         />
                     </View>
@@ -216,7 +251,7 @@ const styles = StyleSheet.create({
         height: 200,
         borderRadius: 100,
         marginBottom: 8,
-        borderWidth: 1.3,
+        borderWidth: 2,
         borderColor:"#0C859F"
     },
     usernameText: {
