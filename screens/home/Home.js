@@ -68,13 +68,17 @@ const HomeScreen = (props) => {
         };
     }, []);
 
+    const trigger = new Date(Date.now() + 1 * 60 * 1000);
+
     async function schedulePushNotification() {
         await Notifications.scheduleNotificationAsync({
             content: {
                 title: "Despierta dormilón UwU",
-                body: "Tu leche esta lista",
+                body: "Tu leche está lista",
+                vibrate: "false",
+                sound: "alarm.mp3",
             },
-            trigger: { seconds: 2 }
+            trigger,
         });
     }
 
@@ -126,6 +130,32 @@ const HomeScreen = (props) => {
             setHour(newHour);
         }
     };
+
+    // Tipsones------------------------------------------------------------------------------------
+    
+    const tips = [
+        "Intenta ir a dormir y despertarte a la misma hora todos los días para establecer un ritmo circadiano regular y mejorar la calidad de tu sueño.",
+        "Asegúrate de que tu habitación esté fresca, oscura y silenciosa para ayudar a tu cuerpo a relajarse y prepararse para el sueño.",
+        "Evita la exposición a la luz brillante antes de dormir, ya que puede interrumpir tu ritmo circadiano y dificultar el sueño.", 
+        "Intenta leer un libro o tomar un baño relajante antes de acostarte.",
+        "El ejercicio regular puede ayudarte a dormir mejor, pero asegúrate de hacerlo al menos 3 horas antes de dormir para evitar interrupciones en el sueño.", 
+        "Evita el ejercicio intenso antes de acostarte para no activar tu cuerpo y hacer que te cueste dormir."
+    ];
+
+    const [currentTipIndex, setCurrentTipIndex] = useState(0);
+
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            setCurrentTipIndex((currentTipIndex + 1) % tips.length);
+        }, 5000);
+
+        return () => clearInterval(intervalId);
+    }, [currentTipIndex]);
+
+
+
+    //---------------------------------------------------------------------------------------------
+
     return (
         <ScrollView>
             <Text style={theme.textTitle}>Información de la última noche</Text>
@@ -218,47 +248,18 @@ const HomeScreen = (props) => {
                 </TouchableOpacity>
             </View>
 
-            <View style={{ marginVertical: 15 }}>
-                <View>
-                    <Text
-                        style={{
-                            fontSize: 20,
-                            textAlign: "center",
-                            fontWeight: "600",
-                            marginVertical: 10,
-                        }}
-                    >
-                        Tips para mejorar tu sueño
-                    </Text>
-                    <Image
-                        style={theme.image}
-                        source={{
-                            uri: "https://i.pinimg.com/600x315/45/75/c0/4575c04dff98ecf1a773bbcf4c4d9498.jpg",
-                        }}
-                    />
-                </View>
+            {/*Nueva vista de los tips*/}
+            <View>
+                <Text style={theme.textTipTitle}>
+                    Tips para mejorar tu sueño:
+                </Text>
                 <View style={theme.containerTip}>
                     <View style={theme.listItem}>
-                        <Text style={theme.textTip}>
-                            1 - Establece una rutina de sueño: trata de
-                            acostarte y levantarte a la misma hora todos los
-                            días, incluso los fines de semana. Esto ayuda a tu
-                            cuerpo a establecer un ritmo circadiano regular y a
-                            prepararse para el sueño.
-                        </Text>
-                    </View>
-                    <View style={theme.listItem}>
-                        <Text style={theme.textTip}>
-                            2 - Crea un ambiente propicio para el sueño: tu
-                            habitación debe ser fresca, oscura y silenciosa.
-                            Asegúrate de que tu cama y almohadas sean cómodas.
-                            Evita ver televisión o utilizar dispositivos
-                            electrónicos antes de dormir, ya que la luz azul que
-                            emiten puede afectar tu ritmo circadiano.
-                        </Text>
+                        <Text style={theme.textTip}>{tips[currentTipIndex]}</Text>
                     </View>
                 </View>
             </View>
+
         </ScrollView>
     );
 };
@@ -414,17 +415,33 @@ const theme = StyleSheet.create({
         borderWidth: 1,
         borderColor: "#D6D6D6",
     },
-    textTip: {
-        marginVertical: 10,
-        color: "#3A3A3A",
-        fontSize: 16,
-        fontWeight: "600",
-        marginHorizontal: 20,
-    },
+
+    // Estilos para los tips -------
     containerTip: {
-        flex: 1,
-        padding: 10,
-        marginHorizontal: 20,
+        backgroundColor: "#ffffff", 
+        padding: 10, 
+        borderRadius: 10, 
+        marginHorizontal: 20, 
+        marginBottom: 20, 
+        shadowColor: "#000", 
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25, 
+        shadowRadius: 3.84, 
+        elevation: 5,
+    },
+    textTip: {
+        fontSize: 15,
+        lineHeight: 24, 
+        color: "#333333", 
+    },
+    textTipTitle: {
+        fontSize: 18,
+        marginHorizontal: 26,
+        fontWeight: "500",
+        marginVertical: 10,
     },
     listItem: {
         flexDirection: "row",
@@ -432,14 +449,17 @@ const theme = StyleSheet.create({
         marginBottom: 5,
         marginHorizontal: 20,
     },
-    image: {
+    //------------------------------
+    
+    /*image: {
         width: 200,
         height: 200,
         marginBottom: 10,
         alignSelf: "center",
         borderWidth: 2,
         borderColor: "#0C859F",
-    },
+    },*/
 });
 
 export default Home;
+
