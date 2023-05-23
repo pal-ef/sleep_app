@@ -12,7 +12,11 @@ import { Feather } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { ScrollView } from "react-native-gesture-handler";
 
+import { useNavigation } from "@react-navigation/native";
+
+
 const Account = (props) => {
+    const navigation = useNavigation();
     const [waifuURL, setWaifuURL] = useState("google.com");
     const [dominantColor, setDominantColor] = useState("gray");
     //const [userData, setUserData] = useState("");
@@ -47,7 +51,7 @@ const Account = (props) => {
     }, []);
 
     const [selectedImage, setSelectedImage] = useState(null);
-    
+
     let openImagePickerAsync = async () => {
         const permissionResult =
             await ImagePicker.requestCameraPermissionsAsync();
@@ -69,25 +73,55 @@ const Account = (props) => {
 
     const [isEditing, setIsEditing] = useState(false);
     const [isEmpty, setIsEmpty] = useState(false);
-    
+
 
     async function updateUserInfo(data) {
         console.log(data);
         // Default options are marked with *
         const response = await fetch(`https://sleepapp-backend-production.up.railway.app/user/${props.credentials.id}`, {
-          method: "PUT", // *GET, POST, PUT, DELETE, etc.
-          mode: "cors", // no-cors, *cors, same-origin
-          cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-          credentials: "same-origin", // include, *same-origin, omit
-          headers: {
-            "Content-Type": "application/json",
-            // 'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          redirect: "follow", // manual, *follow, error
-          referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-          body: JSON.stringify(data), // body data type must match "Content-Type" header
+            method: "PUT", // *GET, POST, PUT, DELETE, etc.
+            mode: "cors", // no-cors, *cors, same-origin
+            cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+            credentials: "same-origin", // include, *same-origin, omit
+            headers: {
+                "Content-Type": "application/json",
+                // 'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            redirect: "follow", // manual, *follow, error
+            referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+            body: JSON.stringify(data), // body data type must match "Content-Type" header
         });
         return response.json(); // parses JSON response into native JavaScript objects
+    }
+
+    async function deleteUser(data) {
+        Alert.alert(
+          'Eliminar cuenta',
+          '¿Está seguro que desea eliminar su cuenta?',
+          [
+            {text: 'Cancelar', style: 'cancel'},
+            {
+              text: 'Eliminar',
+              onPress: async () => {
+                console.log(data);
+                const response = await fetch(`https://sleepapp-backend-production.up.railway.app/user/${props.credentials.id}`, {
+                  method: "DELETE",
+                  mode: "cors",
+                  cache: "no-cache",
+                  credentials: "same-origin",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  redirect: "follow",
+                  referrerPolicy: "no-referrer",
+                  body: JSON.stringify(data),
+                });
+                navigation.navigate('LogIn');
+              }
+            },
+          ],
+          {cancelable: false},
+        );
       }
 
     // Funciones para manejar el botón de editar
@@ -98,14 +132,11 @@ const Account = (props) => {
                 (value) => value === ""
             );
             if (hasEmptyField) {
-                setIsEmpty(true);
                 Alert.alert("Por favor, revisa que ningún campo este vacío");
                 return;
             } else {
                 setIsEmpty(false);
                 setIsEditing(false);
-                //Alert.alert("Datos guardados exitosamente");
-                //Alert.alert("Datos guardados exitosamente");
                 // Guardar datos
                 const response = updateUserInfo(userInfo);
             }
@@ -135,7 +166,7 @@ const Account = (props) => {
                             <Image
                                 source={{ uri: waifuURL }}
                                 resizeMode="contain"
-                                style={[styles.image, {borderColor: dominantColor}]}
+                                style={[styles.image, { borderColor: dominantColor }]}
                             />
                         </View>
                     )}
@@ -146,7 +177,7 @@ const Account = (props) => {
                         isEditing ? styles.editingMode : null
                     ]}
                     editable={isEditing ? true : false}
-                    value={'@'+userInfo.username}
+                    value={userInfo.username}
                     onChangeText={(value) =>
                         handleChangeText("username", value)
                     }
@@ -160,7 +191,7 @@ const Account = (props) => {
                             <Feather name="at-sign" size={20} color="white" />
                         </View>
                         <TextInput
-                            editable={isEditing ? true : false}
+                            editable={false}
                             style={[styles.input, isEditing ? styles.editingMode : null]}
                             value={userInfo.email}
                             onChangeText={(value) =>
@@ -176,7 +207,7 @@ const Account = (props) => {
                             editable={isEditing ? true : false}
                             style={[styles.input, isEditing ? styles.editingMode : null]}
                             value={userInfo.name}
-                            
+
                             onChangeText={(value) =>
                                 handleChangeText("name", value)
                             }
@@ -200,25 +231,39 @@ const Account = (props) => {
             </View>
             <View style={{ alignItems: "center" }}>
                 <TouchableOpacity
-                    style={[styles.editInfoPressable, isEditing ? {backgroundColor: "#35B48E", borderColor: "#35B48E"}: null]}
+                    style={[styles.editInfoPressable, isEditing ? { backgroundColor: "#35B48E", borderColor: "#35B48E" } : null]}
                     onPress={handleEditButton}
                 >
                     <Text
                         style={
                             isEditing
                                 ? {
-                                      color: "white",
-                                      fontSize: 17,
-                                      fontWeight: "600",
-                                  }
+                                    color: "white",
+                                    fontSize: 17,
+                                    fontWeight: "600",
+                                }
                                 : {
-                                      color: "#1C93D6",
-                                      fontSize: 17,
-                                      fontWeight: "600",
-                                  }
+                                    color: "#1C93D6",
+                                    fontSize: 17,
+                                    fontWeight: "600",
+                                }
                         }
                     >
                         {isEditing ? "Guardar cambios" : "Cambiar información"}
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.editInfoPressable, {marginVertical: 15}]}
+                    onPress={deleteUser}
+                >
+                    <Text
+                        style={{
+                            color: "#1C93D6",
+                            fontSize: 17,
+                            fontWeight: "600",
+                        }}
+                    >
+                        Eliminar cuenta
                     </Text>
                 </TouchableOpacity>
             </View>
@@ -252,7 +297,7 @@ const styles = StyleSheet.create({
         borderRadius: 100,
         marginBottom: 8,
         borderWidth: 2,
-        borderColor:"#0C859F"
+        borderColor: "#0C859F"
     },
     usernameText: {
         width: "auto",
